@@ -12,15 +12,19 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import zindach.mathlib.algebra.Vector;
+import zindach.neuralnetlib.main.CostFunction;
 import zindach.neuralnetlib.main.NeuralNetwork;
-import zindach.neuralnetlib.main.NeuronCalcFunction;
+import zindach.neuralnetlib.main.NeuronFunction;
 
 public class Frame extends JFrame {
 
@@ -33,7 +37,7 @@ public class Frame extends JFrame {
         setSize(1000, 600);
 
         labels = new JLabel[10];
-        nn = new NeuralNetwork(784, 10, 15, 1, -8, NeuronCalcFunction.SIGMOID);
+        nn = new NeuralNetwork(NeuronFunction.SIGMOID, CostFunction.QUADRATIC, 784, 15, 10);
 
         image = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
@@ -64,35 +68,57 @@ public class Frame extends JFrame {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
-
                     try {
-                        File f = new File(((JButton) ae.getSource()).getText() + "-0.png");
+                        File f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-0.png");
                         int i = 1;
                         while (f.exists()) {
-                            f = new File(((JButton) ae.getSource()).getText() + "-" + i + ".png");
+                            f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-" + i + ".png");
                             i++;
                         }
                         ImageIO.write(image, "png", f);
                     } catch (IOException ex) {
-                        ex.printStackTrace();
                     }
                     graphics.setColor(Color.WHITE);
-                graphics.fillRect(0, 0, 28, 28);
-                graphics.setColor(Color.BLACK);
-                repaint();
+                    graphics.fillRect(0, 0, 28, 28);
+                    graphics.setColor(Color.BLACK);
+                    repaint();
                 }
             });
         }
         JButton button2 = new JButton("Reset");
         panel2.add(button2);
-        button2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(0, 0, 28, 28);
-                graphics.setColor(Color.BLACK);
-                repaint();
+        button2.addActionListener((ActionEvent ae) -> {
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, 28, 28);
+            graphics.setColor(Color.BLACK);
+            repaint();
+        });
+        JButton button3 = new JButton("Train");
+        panel2.add(button3);
+        button3.addActionListener((ActionEvent ae) -> {
+            ArrayList<Double[]> trainingData = new ArrayList<>();
+            ArrayList<Double> correctOut = new ArrayList<>();
+            File[] dir = new File("trainingData\\").listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File file, String string) {
+                    return string.endsWith(".png");
+                }
+            });
+            Vector[] inputs = new Vector[dir.length];
+            Vector[] outputs = new Vector[dir.length];
+            for (int i = 0; i < dir.length; i++) {
+                try {
+                    BufferedImage readImage = ImageIO.read(dir[i]);
+                    inputs[i] = new Vector(calcInput(image));
+                    double[] out = new double[10];
+//                    System.out.println(dir[i].getName());
+                    out[Integer.parseInt(dir[i].getName().split(" ")[1].charAt(0) + "")] = 1;
+                    outputs[i] = new Vector(out);
+
+                } catch (IOException ex) {
+                }
             }
+            nn.stochasticGradientDescent(inputs, outputs);
         });
 
         add(panel2);
@@ -116,22 +142,24 @@ public class Frame extends JFrame {
 
             @Override
             public void mouseReleased(MouseEvent me) {
-                double[] input = new double[784];
-                for (int i = 0; i < 28; i++) {
-                    for (int j = 0; j < 28; j++) {
-                        input[i * 28 + j] = image.getRGB(i, j) == -1 ? 0.0 : 1.0;
-                    }
-                }
-                nn.recalculate(input);
-                setLabels(nn.getOutput());
-                nn.print();
+                setLabels(nn.calculate(new Vector(calcInput(image))).values());
             }
         };
         addMouseListener(mo);
         addMouseMotionListener(mo);
     }
 
-    public void setLabels(double[] output) {
+    private double[] calcInput(BufferedImage image) {
+        double[] input = new double[784];
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                input[i * 28 + j] = image.getRGB(i, j) == -1 ? 0.0 : 1.0;
+            }
+        }
+        return input;
+    }
+
+    private void setLabels(double[] output) {
         for (int i = 0; i < 10; i++) {
             labels[i].setText(String.format("%.2f", output[i] * 100));
         }

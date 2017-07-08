@@ -3,8 +3,8 @@
 //import zindach.neuralnetlib.main.NeuralNetwork;
 //import zindach.neuralnetlib.main.NeuronCalcFunction;
 //
-//public class NeuralNetTest {    
-//    
+//public class NeuralNetTest {
+//
 //    private static final int ITERATIONS = 2;
 //
 //    private static final int IN = 2;
