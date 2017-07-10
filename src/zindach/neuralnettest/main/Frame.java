@@ -22,11 +22,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import zindach.mathlib.algebra.Vector;
-import zindach.neuralnetlib.main.CostFunction;
 import zindach.neuralnetlib.main.NeuralNetwork;
 import zindach.neuralnetlib.main.NeuronFunction;
 
 public class Frame extends JFrame {
+
+    private final String FILE_ENDING = ".png";
 
     private BufferedImage image;
     private JLabel[] labels;
@@ -36,10 +37,20 @@ public class Frame extends JFrame {
         super("Neural Network Test");
         setSize(1000, 600);
 
+//        nn = new NeuralNetwork(NeuronFunction.SIGMOID, 2, 2, 2);
+//        nn.stochasticGradientDescent(new Vector[]{new Vector(0, 1), new Vector(0, 3), new Vector(1, 0), new Vector(3, 0)},
+//                new Vector[]{new Vector(0, 0.5), new Vector(0, 1), new Vector(0.5, 0), new Vector(1, 0)}, 0.75, 200000, 0.1, 0.01, 0.001);
+//        System.out.println(nn.calculate(new Vector(0, 1)));
+//        System.out.println(nn.calculate(new Vector(0, 2)));
+//        System.out.println(nn.calculate(new Vector(0, 3)));
+//        System.out.println(nn.calculate(new Vector(1, 0)));
+//        System.out.println(nn.calculate(new Vector(2, 0)));
+//        System.out.println(nn.calculate(new Vector(3, 0)));
+//        System.exit(0);
         labels = new JLabel[10];
-        nn = new NeuralNetwork(NeuronFunction.SIGMOID, CostFunction.QUADRATIC, 784, 15, 10);
+        nn = new NeuralNetwork(NeuronFunction.SIGMOID, 784, 15, 10);
 
-        image = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
+        image = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, 28, 28);
@@ -69,13 +80,13 @@ public class Frame extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     try {
-                        File f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-0.png");
+                        File f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-0" + FILE_ENDING);
                         int i = 1;
                         while (f.exists()) {
-                            f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-" + i + ".png");
+                            f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-" + i + FILE_ENDING);
                             i++;
                         }
-                        ImageIO.write(image, "png", f);
+                        ImageIO.write(image, FILE_ENDING.substring(1), f);
                     } catch (IOException ex) {
                     }
                     graphics.setColor(Color.WHITE);
@@ -91,6 +102,7 @@ public class Frame extends JFrame {
             graphics.setColor(Color.WHITE);
             graphics.fillRect(0, 0, 28, 28);
             graphics.setColor(Color.BLACK);
+            setLabels(new double[10]);
             repaint();
         });
         JButton button3 = new JButton("Train");
@@ -101,15 +113,17 @@ public class Frame extends JFrame {
             File[] dir = new File("trainingData\\").listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String string) {
-                    return string.endsWith(".png");
+                    return string.endsWith(FILE_ENDING);
                 }
             });
             Vector[] inputs = new Vector[dir.length];
             Vector[] outputs = new Vector[dir.length];
             for (int i = 0; i < dir.length; i++) {
                 try {
+//                    System.out.println(dir[i].getAbsolutePath());
                     BufferedImage readImage = ImageIO.read(dir[i]);
-                    inputs[i] = new Vector(calcInput(image));
+//                    image = readImage;
+                    inputs[i] = new Vector(calcInput(readImage));
                     double[] out = new double[10];
 //                    System.out.println(dir[i].getName());
                     out[Integer.parseInt(dir[i].getName().split(" ")[1].charAt(0) + "")] = 1;
@@ -118,44 +132,73 @@ public class Frame extends JFrame {
                 } catch (IOException ex) {
                 }
             }
-            nn.stochasticGradientDescent(inputs, outputs);
+//            repaint();
+            nn.stochasticGradientDescent(inputs, outputs, 0.75, 5000, 2.5, 0.25, 0.025);
         });
 
         add(panel2);
 
         setResizable(false);
         setVisible(true);
+        pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         MouseAdapter mo = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent me) {
-                graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1, 0, 0);
-                repaint();
+                draw(graphics, me);
             }
 
             @Override
             public void mouseDragged(MouseEvent me) {
-                graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1, 0, 0);
-                repaint();
+                draw(graphics, me);
             }
 
             @Override
             public void mouseReleased(MouseEvent me) {
-                setLabels(nn.calculate(new Vector(calcInput(image))).values());
+                Vector in = new Vector(calcInput(image));
+                Vector out = nn.calculate(in);
+                setLabels(out.values());
             }
         };
         addMouseListener(mo);
         addMouseMotionListener(mo);
+        panel1.addMouseListener(mo);
+        panel1.addMouseMotionListener(mo);
+    }
+
+    private void draw(Graphics graphics, MouseEvent me) {
+        graphics.setColor(new Color(0f, 0f, 0f, 0.02f));
+//        if (image.getRGB((int) (me.getX() / 600.0 * 28.0) - 1, (int) (me.getY() / 600.0 * 28.0)) > -16000000) {
+        graphics.drawRect((int) (me.getX() / 600.0 * 28.0) - 1, (int) (me.getY() / 600.0 * 28.0), 1, 0);
+//        }
+//        if (image.getRGB((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1) > -16000000) {
+        graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1, 0, 1);
+//        }
+//        if (image.getRGB((int) (me.getX() / 600.0 * 28.0) + 1, (int) (me.getY() / 600.0 * 28.0)) > -16000000) {
+        graphics.drawRect((int) (me.getX() / 600.0 * 28.0) + 1, (int) (me.getY() / 600.0 * 28.0), 1, 0);
+//        }
+//        if (image.getRGB((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) + 1) > -16000000) {
+        graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0), 0, 1);
+//        }
+        graphics.setColor(Color.BLACK);
+        graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0), 0, 0);
+        repaint();
     }
 
     private double[] calcInput(BufferedImage image) {
         double[] input = new double[784];
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 28; j++) {
-                input[i * 28 + j] = image.getRGB(i, j) == -1 ? 0.0 : 1.0;
+//                System.out.print(" " + image.getRGB(j, i));
+
+//                printPixelARGB(image.getRGB(j, i));
+                input[i * 28 + j] = Math.abs((image.getRGB(j, i) + 1.0) / 16777215.0);
+//                System.out.print(String.format(" %.1f", input[i * 28 + j]));
             }
+//            System.out.println();
         }
+//        System.out.println();
         return input;
     }
 
@@ -165,6 +208,13 @@ public class Frame extends JFrame {
         }
     }
 
+//    private void printPixelARGB(int pixel) {
+//        int alpha = (pixel >> 24) & 0xff;
+//        int red = (pixel >> 16) & 0xff;
+//        int green = (pixel >> 8) & 0xff;
+//        int blue = (pixel) & 0xff;
+//        System.out.print("argb: " + alpha + ", " + red + ", " + green + ", " + blue);
+//    }
     public static void main(String[] args) {
         Frame frame = new Frame();
     }
