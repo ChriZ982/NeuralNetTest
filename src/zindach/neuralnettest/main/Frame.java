@@ -22,8 +22,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import zindach.mathlib.algebra.Vector;
-import zindach.neuralnetlib.main.NeuralNetwork;
-import zindach.neuralnetlib.main.NeuronFunction;
+import zindach.neuralnetlib.export.NetworkIO;
+import zindach.neuralnetlib.neuralnet.NeuralNetwork;
+import zindach.neuralnetlib.neuralnet.NeuronFunction;
 
 public class Frame extends JFrame {
 
@@ -68,12 +69,13 @@ public class Frame extends JFrame {
         panel1.setPreferredSize(new Dimension(600, 600));
         add(panel1);
 
-        JPanel panel2 = new JPanel(new GridLayout(11, 3));
+        JPanel panel2 = new JPanel(new GridLayout(11, 4));
 
         for (int i = 0; i < 10; i++) {
             panel2.add(new JLabel(i + " "));
             labels[i] = new JLabel();
             panel2.add(labels[i]);
+            panel2.add(new JLabel("%"));
             JButton button = new JButton("train " + i);
             panel2.add(button);
             button.addActionListener(new ActionListener() {
@@ -133,7 +135,19 @@ public class Frame extends JFrame {
                 }
             }
 //            repaint();
-            nn.stochasticGradientDescent(inputs, outputs, 0.75, 5000, 2.5, 0.25, 0.025);
+            nn.stochasticGradientDescent(inputs, outputs, 0.8, 4000, 0.001);
+        });
+
+        JButton button4 = new JButton("Save");
+        panel2.add(button4);
+        button4.addActionListener((ActionEvent ae) -> {
+            NetworkIO.saveNetwork("network.dat", nn);
+        });
+
+        JButton button5 = new JButton("Load");
+        panel2.add(button5);
+        button5.addActionListener((ActionEvent ae) -> {
+            nn = NetworkIO.loadNetwork("network.dat");
         });
 
         add(panel2);
