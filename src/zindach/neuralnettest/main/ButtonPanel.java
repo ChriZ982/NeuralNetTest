@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import zindach.mathlib.algebra.Vector;
-import zindach.neuralnetlib.export.NetworkIO;
+import zindach.neuralnetlib.io.NetworkIO;
 
 public class ButtonPanel extends JPanel {
 
@@ -24,7 +24,7 @@ public class ButtonPanel extends JPanel {
     private Vector[] outputData;
 
     public ButtonPanel(Frame frame, Graphics2D graphics) {
-        super(new GridLayout(12, 4));
+        super(new GridLayout(12, 3));
         this.frame = frame;
         this.graphics = graphics;
         this.labels = new JLabel[10];
@@ -34,11 +34,6 @@ public class ButtonPanel extends JPanel {
             labels[i] = new JLabel("", JLabel.CENTER);
             add(labels[i]);
             add(new JLabel("%"));
-            JButton storeButton = new JButton("Store " + i);
-            add(storeButton);
-            storeButton.addActionListener((ActionEvent ae) -> {
-                storeButtonActionPerformed(ae);
-            });
         }
         JButton resetButton = new JButton("Reset");
         JButton trainButton = new JButton("Train");
@@ -64,7 +59,6 @@ public class ButtonPanel extends JPanel {
 
         add(loadButton);
         add(saveButton);
-        add(new JLabel());
         add(resetButton);
         add(loadTrainingButton);
         add(trainButton);
@@ -72,25 +66,8 @@ public class ButtonPanel extends JPanel {
         resetButtonActionPerformed();
     }
 
-    private void storeButtonActionPerformed(ActionEvent ae) {
-        try {
-            File f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-0" + Frame.FILE_ENDING);
-            int i = 1;
-            while (f.exists()) {
-                f = new File("trainingData\\" + ((JButton) ae.getSource()).getText() + "-" + i + Frame.FILE_ENDING);
-                i++;
-            }
-            ImageIO.write(frame.getImage(), Frame.FILE_ENDING.substring(1), f);
-        } catch (IOException ex) {
-        }
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, 28, 28);
-        graphics.setColor(Color.BLACK);
-        repaint();
-    }
-
     private void trainButtonActionPerformed() {
-        frame.getNN().stochasticGradientDescent(inputData, outputData, 0.8, 30, 10, 0.0025);
+        frame.getNN().stochasticGradientDescent(inputData, outputData, 0.833334, 30, 3.0, 10);
     }
 
     private void saveButtonActionPerformed() {
@@ -148,7 +125,7 @@ public class ButtonPanel extends JPanel {
 
         for (int i = 0; i < 10; i++) {
             System.out.println(i);
-            File[] dir = new File("trainingData\\" + i + "\\").listFiles((File file, String string) -> string.endsWith(Frame.FILE_ENDING));
+            File[] dir = new File("training\\" + i + "\\").listFiles((File file, String string) -> string.endsWith(Frame.FILE_ENDING));
             for (File file : dir) {
                 try {
                     BufferedImage readImage = ImageIO.read(file);

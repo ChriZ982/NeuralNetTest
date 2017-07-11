@@ -4,8 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import zindach.neuralnetlib.neuralnet.NeuralNetwork;
-import zindach.neuralnetlib.neuralnet.NeuronFunction;
+import zindach.neuralnetlib.functions.QuadraticCostFunction;
+import zindach.neuralnetlib.functions.SigmoidFunction;
+import zindach.neuralnetlib.net.NeuralNetwork;
 
 public class Frame extends JFrame {
 
@@ -18,7 +19,7 @@ public class Frame extends JFrame {
     public Frame() {
         super("Neural Network Test");
 
-        nn = new NeuralNetwork(NeuronFunction.SIGMOID, 784, 15, 10);
+        nn = new NeuralNetwork(new SigmoidFunction(), new QuadraticCostFunction(), 784, 30, 10);
         image = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB_PRE);
         graphics = (Graphics2D) image.getGraphics();
 
