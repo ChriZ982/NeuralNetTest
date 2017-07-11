@@ -11,8 +11,8 @@ public class Frame extends JFrame {
 
     public static final String FILE_ENDING = ".png";
 
-    private BufferedImage image;
-    private Graphics2D graphics;
+    private final BufferedImage image;
+    private final Graphics2D graphics;
     private NeuralNetwork nn;
 
     public Frame() {
@@ -50,6 +50,6 @@ public class Frame extends JFrame {
     }
 
     public static void main(String[] args) {
-        Frame frame = new Frame();
+        new Frame();
     }
 }

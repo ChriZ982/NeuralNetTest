@@ -19,10 +19,10 @@ public class Mouse extends MouseAdapter {
     }
 
     private void draw(MouseEvent me) {
-        graphics.setColor(new Color(0f, 0f, 0f, 0.02f));
+        graphics.setColor(new Color(1f, 1f, 1f, 0.02f));
         graphics.drawRect((int) (me.getX() / 600.0 * 28.0) - 1, (int) (me.getY() / 600.0 * 28.0), 3, 0);
         graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1, 0, 2);
-        graphics.setColor(Color.BLACK);
+        graphics.setColor(Color.WHITE);
         graphics.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0), 0, 0);
         frame.repaint();
     }
