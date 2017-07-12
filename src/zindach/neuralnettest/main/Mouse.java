@@ -8,6 +8,7 @@ import zindach.mathlib.algebra.Vector;
 
 public class Mouse extends MouseAdapter {
 
+    private static final int BRUSH_RADIUS = 30;
     private final Frame frame;
 
     public Mouse(Frame frame) {
@@ -16,11 +17,8 @@ public class Mouse extends MouseAdapter {
 
     private void draw(MouseEvent me) {
         Graphics2D g = frame.getGraphics2D();
-        g.setColor(new Color(1f, 1f, 1f, 0.04f));
-        g.drawRect((int) (me.getX() / 600.0 * 28.0) - 1, (int) (me.getY() / 600.0 * 28.0), 3, 0);
-        g.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0) - 1, 0, 2);
-        g.setColor(Color.WHITE);
-        g.drawRect((int) (me.getX() / 600.0 * 28.0), (int) (me.getY() / 600.0 * 28.0), 0, 0);
+        g.setColor(Color.BLACK);
+        g.fillOval(me.getX() - BRUSH_RADIUS, me.getY() - BRUSH_RADIUS, 2 * BRUSH_RADIUS, 2 * BRUSH_RADIUS);
         frame.repaint();
     }
 

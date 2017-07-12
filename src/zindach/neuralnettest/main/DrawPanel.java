@@ -11,7 +11,7 @@ public class DrawPanel extends JPanel {
     public DrawPanel(Frame frame) {
         super();
         this.frame = frame;
-        setPreferredSize(new Dimension(600, 600));
+        setPreferredSize(new Dimension(Frame.DRAW_SIZE, Frame.DRAW_SIZE));
 
         addMouseListener(frame.getMouse());
         addMouseMotionListener(frame.getMouse());
@@ -20,6 +20,6 @@ public class DrawPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        grphcs.drawImage(frame.getImage(), 0, 0, 600, 600, 0, 0, 28, 28, this);
+        grphcs.drawImage(frame.getImage(), 0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE, 0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE, this);
     }
 }

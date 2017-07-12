@@ -5,11 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,8 +16,6 @@ public class ButtonPanel extends JPanel {
 
     private final JLabel[] labels;
     private final Frame frame;
-    private Vector[] inputData;
-    private Vector[] outputData;
 
     public ButtonPanel(Frame frame) {
         super(new GridLayout(12, 3));
@@ -38,8 +32,8 @@ public class ButtonPanel extends JPanel {
         JButton trainButton = new JButton("Train");
         JButton saveButton = new JButton("Save");
         JButton loadButton = new JButton("Load");
-        JButton loadTrainingButton = new JButton("Load Training");
         JButton testButton = new JButton("Test");
+        JButton predictButton = new JButton("Predict");
 
         resetButton.addActionListener((ActionEvent ae) -> {
             resetButtonActionPerformed();
@@ -53,60 +47,68 @@ public class ButtonPanel extends JPanel {
         loadButton.addActionListener((ActionEvent ae) -> {
             loadButtonActionPerformed();
         });
-        loadTrainingButton.addActionListener((ActionEvent ae) -> {
-            loadTrainingButtonActionPerformed();
-        });
         testButton.addActionListener((ActionEvent ae) -> {
             testButtonActionPerformed();
+        });
+        predictButton.addActionListener((ActionEvent ae) -> {
+            predictButtonActionPerformed();
         });
 
         add(loadButton);
         add(saveButton);
         add(resetButton);
-        add(loadTrainingButton);
         add(trainButton);
         add(testButton);
+        add(predictButton);
 
         resetButtonActionPerformed();
+
+//        Vector[] test = MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz");
+//        Vector[] test2 = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
+//
+//        drawImageFromVector(test2[1]);
     }
 
     private void trainButtonActionPerformed() {
-        frame.getNN().stochasticGradientDescent(inputData, outputData, 0.833334, 30, 0.5, 10, true);
+//        VectorUtils.shuffle(inputData, outputData);
+//        Vector[][] dataWithoutOverfitting = VectorUtils.split(inputData, outputData, 0.033333334);
+//        frame.getNN().stochasticGradientDescent(dataWithoutOverfitting[0], dataWithoutOverfitting[1], 0.5, 400, 0.5, 0.1, 10, true);
+        frame.getNN().stochasticGradientDescent(MNISTLoader.importData("data/train-images-idx3-ubyte.gz"),
+                MNISTLoader.importData("data/train-labels-idx1-ubyte.gz"),
+                MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz"),
+                MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz"),
+                60, 0.1, 5.0, 10, true);
     }
 
     private void testButtonActionPerformed() {
         Random rand = new Random();
+        Vector[] data = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
         new Thread(() -> {
             System.out.println("\n---Testing Network---");
-            for (int i = 0; i < 10; i++) {
-                System.out.println(i);
-                File[] dir = new File("training\\" + i + "\\").listFiles((File file, String string) -> string.endsWith(Frame.FILE_ENDING));
-                for (int j = 0; j < dir.length; j += rand.nextInt(1000) + 1000) {
-                    try {
-                        BufferedImage readImage = ImageIO.read(dir[j]);
-                        frame.setImage(readImage);
-                        setLabels(frame.getNN().calculate(new Vector(calcInput(readImage))).values());
-
-                        Thread.sleep(300);
-                    } catch (IOException | InterruptedException ex) {
-                    }
+            for (int j = 0; j < data.length; j += rand.nextInt(200) + 400) {
+                try {
+                    drawImageFromVector(data[j]);
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
                 }
+
             }
+            System.out.println("finished");
         }).start();
     }
 
     private void saveButtonActionPerformed() {
-        NetworkIO.saveNetwork("network.dat", frame.getNN());
+        NetworkIO.saveNetwork("data/network.dat", frame.getNN());
     }
 
     private void loadButtonActionPerformed() {
-        frame.setNN(NetworkIO.loadNetwork("network.dat"));
+        frame.setNN(NetworkIO.loadNetwork("data/network.dat"));
     }
 
     private void resetButtonActionPerformed() {
         Graphics2D g = frame.getGraphics2D();
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, 28, 28);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE);
         setLabels(new double[10]);
         frame.repaint();
     }
@@ -144,30 +146,32 @@ public class ButtonPanel extends JPanel {
         return input;
     }
 
-    private void loadTrainingButtonActionPerformed() {
-        System.out.println("---Loading Training Data---");
-        ArrayList<Vector> inputs = new ArrayList<>();
-        ArrayList<Vector> outputs = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            System.out.println(i);
-            File[] dir = new File("training\\" + i + "\\").listFiles((File file, String string) -> string.endsWith(Frame.FILE_ENDING));
-            for (File file : dir) {
-                try {
-                    BufferedImage readImage = ImageIO.read(file);
-                    inputs.add(new Vector(calcInput(readImage)));
-                    double[] out = new double[10];
-                    out[i] = 1;
-                    outputs.add(new Vector(out));
-                } catch (IOException ex) {
-                }
+    private void drawImageFromVector(Vector vector) {
+        resetButtonActionPerformed();
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                int grey = 255 - (int) (vector.value(i * 28 + j) * 255);
+                frame.getGraphics2D().setColor(new Color(grey, grey, grey));
+                frame.getGraphics2D().fillRect(j * 25, i * 25, 25, 25);
             }
         }
-        inputData = new Vector[inputs.size()];
-        outputData = new Vector[outputs.size()];
-        for (int i = 0; i < inputs.size(); i++) {
-            inputData[i] = inputs.get(i);
-            outputData[i] = outputs.get(i);
+        repaint();
+        setLabels(frame.getNN().calculate(vector).values());
+    }
+
+    private void predictButtonActionPerformed() {
+        double[] vec = new double[784];
+        for (int i = 0; i < 28; i++) {
+            for (int j = 0; j < 28; j++) {
+                int sum = 0;
+                for (int k = 0; k < 25; k++) {
+                    for (int l = 0; l < 25; l++) {
+                        sum += new Color(frame.getImage().getRGB(j * 25 + k, i * 25 + l)).getRed();
+                    }
+                }
+                vec[i * 28 + j] = 1 - sum / 625.0 / 255.0;
+            }
         }
+        drawImageFromVector(new Vector(vec));
     }
 }
