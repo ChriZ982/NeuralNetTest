@@ -2,27 +2,24 @@ package zindach.neuralnettest.main;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class DrawPanel extends JPanel {
 
-    private final BufferedImage image;
+    private final Frame frame;
 
-    public DrawPanel(BufferedImage image, Frame frame, Graphics2D graphics, ButtonPanel buttonPanel) {
+    public DrawPanel(Frame frame) {
         super();
-        this.image = image;
+        this.frame = frame;
         setPreferredSize(new Dimension(600, 600));
 
-        Mouse mo = new Mouse(frame, graphics, buttonPanel);
-        addMouseListener(mo);
-        addMouseMotionListener(mo);
+        addMouseListener(frame.getMouse());
+        addMouseMotionListener(frame.getMouse());
     }
 
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        grphcs.drawImage(image, 0, 0, 600, 600, 0, 0, 28, 28, this);
+        grphcs.drawImage(frame.getImage(), 0, 0, 600, 600, 0, 0, 28, 28, this);
     }
 }

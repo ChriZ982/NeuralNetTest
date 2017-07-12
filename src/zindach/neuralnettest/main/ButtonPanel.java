@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,14 +20,12 @@ public class ButtonPanel extends JPanel {
 
     private final JLabel[] labels;
     private final Frame frame;
-    private final Graphics2D graphics;
     private Vector[] inputData;
     private Vector[] outputData;
 
-    public ButtonPanel(Frame frame, Graphics2D graphics) {
+    public ButtonPanel(Frame frame) {
         super(new GridLayout(12, 3));
         this.frame = frame;
-        this.graphics = graphics;
         this.labels = new JLabel[10];
 
         for (int i = 0; i < 10; i++) {
@@ -40,6 +39,7 @@ public class ButtonPanel extends JPanel {
         JButton saveButton = new JButton("Save");
         JButton loadButton = new JButton("Load");
         JButton loadTrainingButton = new JButton("Load Training");
+        JButton testButton = new JButton("Test");
 
         resetButton.addActionListener((ActionEvent ae) -> {
             resetButtonActionPerformed();
@@ -56,18 +56,43 @@ public class ButtonPanel extends JPanel {
         loadTrainingButton.addActionListener((ActionEvent ae) -> {
             loadTrainingButtonActionPerformed();
         });
+        testButton.addActionListener((ActionEvent ae) -> {
+            testButtonActionPerformed();
+        });
 
         add(loadButton);
         add(saveButton);
         add(resetButton);
         add(loadTrainingButton);
         add(trainButton);
+        add(testButton);
 
         resetButtonActionPerformed();
     }
 
     private void trainButtonActionPerformed() {
-        frame.getNN().stochasticGradientDescent(inputData, outputData, 0.833334, 30, 3.0, 10);
+        frame.getNN().stochasticGradientDescent(inputData, outputData, 0.833334, 30, 0.5, 10, true);
+    }
+
+    private void testButtonActionPerformed() {
+        Random rand = new Random();
+        new Thread(() -> {
+            System.out.println("\n---Testing Network---");
+            for (int i = 0; i < 10; i++) {
+                System.out.println(i);
+                File[] dir = new File("training\\" + i + "\\").listFiles((File file, String string) -> string.endsWith(Frame.FILE_ENDING));
+                for (int j = 0; j < dir.length; j += rand.nextInt(1000) + 1000) {
+                    try {
+                        BufferedImage readImage = ImageIO.read(dir[j]);
+                        frame.setImage(readImage);
+                        setLabels(frame.getNN().calculate(new Vector(calcInput(readImage))).values());
+
+                        Thread.sleep(300);
+                    } catch (IOException | InterruptedException ex) {
+                    }
+                }
+            }
+        }).start();
     }
 
     private void saveButtonActionPerformed() {
@@ -79,8 +104,9 @@ public class ButtonPanel extends JPanel {
     }
 
     private void resetButtonActionPerformed() {
-        graphics.setColor(Color.BLACK);
-        graphics.fillRect(0, 0, 28, 28);
+        Graphics2D g = frame.getGraphics2D();
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, 28, 28);
         setLabels(new double[10]);
         frame.repaint();
     }
@@ -101,7 +127,7 @@ public class ButtonPanel extends JPanel {
                 labels[i].setText(String.format("%.2f", output[i] * 100));
             }
             if (output[i] == max && sum != 0) {
-                labels[i].setForeground(new Color(0f, 0.6f, 0f));
+                labels[i].setForeground(new Color(0f, 0.8f, 0f));
             } else {
                 labels[i].setForeground(Color.BLACK);
             }
