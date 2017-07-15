@@ -69,7 +69,7 @@ public class ButtonPanel extends JPanel {
                 MNISTLoader.importData("data/train-labels-idx1-ubyte.gz"),
                 MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz"),
                 MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz"),
-                30, 0.5, 5.0, 10, true);
+                2, 0.5, 5.0, 10, true);
     }
 
     private void testButtonActionPerformed() {
