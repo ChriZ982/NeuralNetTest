@@ -62,22 +62,14 @@ public class ButtonPanel extends JPanel {
         add(predictButton);
 
         resetButtonActionPerformed();
-
-//        Vector[] test = MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz");
-//        Vector[] test2 = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
-//
-//        drawImageFromVector(test2[1]);
     }
 
     private void trainButtonActionPerformed() {
-//        VectorUtils.shuffle(inputData, outputData);
-//        Vector[][] dataWithoutOverfitting = VectorUtils.split(inputData, outputData, 0.033333334);
-//        frame.getNN().stochasticGradientDescent(dataWithoutOverfitting[0], dataWithoutOverfitting[1], 0.5, 400, 0.5, 0.1, 10, true);
         frame.getNN().stochasticGradientDescent(MNISTLoader.importData("data/train-images-idx3-ubyte.gz"),
                 MNISTLoader.importData("data/train-labels-idx1-ubyte.gz"),
                 MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz"),
                 MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz"),
-                60, 0.1, 5.0, 10, true);
+                30, 0.5, 5.0, 10, true);
     }
 
     private void testButtonActionPerformed() {
@@ -107,8 +99,8 @@ public class ButtonPanel extends JPanel {
 
     private void resetButtonActionPerformed() {
         Graphics2D g = frame.getGraphics2D();
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE);
+        g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE);
         setLabels(new double[10]);
         frame.repaint();
     }
@@ -148,30 +140,161 @@ public class ButtonPanel extends JPanel {
 
     private void drawImageFromVector(Vector vector) {
         resetButtonActionPerformed();
+        Graphics2D g = frame.getGraphics2D();
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 28; j++) {
                 int grey = 255 - (int) (vector.value(i * 28 + j) * 255);
-                frame.getGraphics2D().setColor(new Color(grey, grey, grey));
-                frame.getGraphics2D().fillRect(j * 25, i * 25, 25, 25);
+                g.setColor(new Color(grey, grey, grey, 255));
+                g.fillRect(j * 25, i * 25, 25, 25);
             }
         }
-        repaint();
+        frame.repaint();
         setLabels(frame.getNN().calculate(vector).values());
     }
 
-    private void predictButtonActionPerformed() {
-        double[] vec = new double[784];
-        for (int i = 0; i < 28; i++) {
-            for (int j = 0; j < 28; j++) {
-                int sum = 0;
-                for (int k = 0; k < 25; k++) {
-                    for (int l = 0; l < 25; l++) {
-                        sum += new Color(frame.getImage().getRGB(j * 25 + k, i * 25 + l)).getRed();
-                    }
+    private int getWhitespaceInImage(BufferedImage image, int i1, int i2, boolean horizontal) {
+        int cut = i1;
+        for (int i = i1; i >= 0 && i < Frame.DRAW_SIZE; i += i2) {
+            boolean white = true;
+            for (int j = 0; j < Frame.DRAW_SIZE; j++) {
+                if ((horizontal && new Color(image.getRGB(j, i)).getRed() != 255)
+                        || (!horizontal && new Color(image.getRGB(i, j)).getRed() != 255)) {
+                    white = false;
+                    break;
                 }
-                vec[i * 28 + j] = 1 - sum / 625.0 / 255.0;
+            }
+
+            if (white || i2 < 0) {
+                cut = i + 1;
+            }
+            if (!white) {
+                break;
             }
         }
-        drawImageFromVector(new Vector(vec));
+        return cut;
+    }
+
+    private Vector centerOfMassOfPixels(BufferedImage image) {
+        int iCount = 0, jCount = 0;
+        int iVal = 0, jVal = 0;
+        for (int i = 0; i < image.getHeight(); i++) {
+            for (int j = 0; j < image.getWidth(); j++) {
+                if (new Color(image.getRGB(j, i)).getRed() != 255) {
+                    iVal += i;
+                    jVal += j;
+                    iCount++;
+                    jCount++;
+                }
+            }
+        }
+        return new Vector(iVal / iCount, jVal / jCount);
+    }
+
+    private void moveTowardsPoint(BufferedImage image, int iC, int jC, int iM, int jM) {
+        int iDiff = iM - iC;
+        int jDiff = jM - jC;
+
+        if (iDiff > 0) {
+            for (int i = image.getHeight() - 1; i >= 0; i--) {
+                for (int j = 0; j < image.getWidth(); j++) {
+                    if (i - iDiff >= 0) {
+                        image.setRGB(j, i, image.getRGB(j, i - iDiff));
+                    } else {
+                        image.setRGB(j, i, Color.WHITE.getRGB());
+                    }
+                }
+            }
+        } else if (iDiff < 0) {
+            for (int i = 0; i < image.getHeight(); i++) {
+                for (int j = 0; j < image.getWidth(); j++) {
+                    if (i - iDiff < image.getHeight()) {
+                        image.setRGB(j, i, image.getRGB(j, i - iDiff));
+                    } else {
+                        image.setRGB(j, i, Color.WHITE.getRGB());
+                    }
+                }
+            }
+        }
+        if (jDiff > 0) {
+            for (int i = 0; i < image.getHeight(); i++) {
+                for (int j = image.getWidth() - 1; j >= 0; j--) {
+                    if (j - jDiff >= 0) {
+                        image.setRGB(j, i, image.getRGB(j - jDiff, i));
+                    } else {
+                        image.setRGB(j, i, Color.WHITE.getRGB());
+                    }
+                }
+            }
+        } else if (jDiff < 0) {
+            for (int i = 0; i < image.getHeight(); i++) {
+                for (int j = 0; j < image.getWidth(); j++) {
+                    if (j - jDiff < image.getWidth()) {
+                        image.setRGB(j, i, image.getRGB(j - jDiff, i));
+                    } else {
+                        image.setRGB(j, i, Color.WHITE.getRGB());
+                    }
+                }
+            }
+        }
+    }
+
+    private void predictButtonActionPerformed() {
+        Thread t1 = new Thread(() -> {
+            try {
+                int nCut = getWhitespaceInImage(frame.getImage(), 0, 1, true);
+                int wCut = getWhitespaceInImage(frame.getImage(), 0, 1, false);
+                int eCut = getWhitespaceInImage(frame.getImage(), Frame.DRAW_SIZE - 1, -1, false);
+                int sCut = getWhitespaceInImage(frame.getImage(), Frame.DRAW_SIZE - 1, -1, true);
+
+                int width = eCut - wCut;
+                int height = sCut - nCut;
+
+                if (width <= 0 || height <= 0) {
+                    return;
+                }
+
+                BufferedImage cutImage = new BufferedImage(eCut - wCut, sCut - nCut, BufferedImage.TYPE_INT_ARGB_PRE);
+                ((Graphics2D) cutImage.getGraphics()).drawImage(frame.getImage().getSubimage(wCut, nCut, width, height), 0, 0, null);
+
+                resetButtonActionPerformed();
+
+                int offset = (int) (0.14285714285714285714 * Frame.DRAW_SIZE);
+                if (width == height) {
+                    frame.getGraphics2D().drawImage(cutImage, offset, offset, Frame.DRAW_SIZE - offset, Frame.DRAW_SIZE - offset, 0, 0, width, height, this);
+                } else if (width > height) {
+                    double scaledWidth = (Frame.DRAW_SIZE - (2.0 * offset)) / width;
+                    int space = (int) ((width - height) * scaledWidth / 2.0);
+                    frame.getGraphics2D().drawImage(cutImage, offset, offset + space, Frame.DRAW_SIZE - offset, Frame.DRAW_SIZE - offset - space, 0, 0, width, height, this);
+                } else if (width < height) {
+                    double scaledHeight = (Frame.DRAW_SIZE - (2.0 * offset)) / height;
+                    int space = (int) ((height - width) * scaledHeight / 2.0);
+                    frame.getGraphics2D().drawImage(cutImage, offset + space, offset, Frame.DRAW_SIZE - offset - space, Frame.DRAW_SIZE - offset, 0, 0, width, height, this);
+                }
+                frame.repaint();
+                Thread.sleep(800);
+
+                Vector cop = centerOfMassOfPixels(frame.getImage());
+
+                moveTowardsPoint(frame.getImage(), (int) cop.value(0), (int) cop.value(1), Frame.DRAW_SIZE / 2, Frame.DRAW_SIZE / 2);
+                frame.repaint();
+                Thread.sleep(800);
+
+                double[] vec = new double[784];
+                for (int i = 0; i < 28; i++) {
+                    for (int j = 0; j < 28; j++) {
+                        int sum = 0;
+                        for (int k = 0; k < 25; k++) {
+                            for (int l = 0; l < 25; l++) {
+                                sum += new Color(frame.getImage().getRGB(j * 25 + k, i * 25 + l)).getRed();
+                            }
+                        }
+                        vec[i * 28 + j] = 1 - sum / 625.0 / 255.0;
+                    }
+                }
+                drawImageFromVector(new Vector(vec));
+            } catch (InterruptedException ex) {
+            }
+        });
+        t1.start();
     }
 }

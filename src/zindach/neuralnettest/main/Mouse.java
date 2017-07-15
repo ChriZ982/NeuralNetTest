@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import zindach.mathlib.algebra.Vector;
 
 public class Mouse extends MouseAdapter {
 
@@ -30,10 +29,5 @@ public class Mouse extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent me) {
         draw(me);
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent me) {
-        frame.getButtonPanel().setLabels(frame.getNN().calculate(new Vector(frame.getButtonPanel().calcInput(frame.getImage()))).values());
     }
 }

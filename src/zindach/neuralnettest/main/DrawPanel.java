@@ -20,6 +20,6 @@ public class DrawPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        grphcs.drawImage(frame.getImage(), 0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE, 0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE, this);
+        grphcs.drawImage(frame.getImage(), 0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE, this);
     }
 }
