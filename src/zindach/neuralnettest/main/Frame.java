@@ -16,7 +16,7 @@ public class Frame extends JFrame {
     private final DrawPanel drawPanel;
     private final ButtonPanel buttonPanel;
     private final Mouse mouse;
-
+    private boolean predicted = false;
     public Frame() {
         super("Neural Network Test");
 
@@ -70,6 +70,15 @@ public class Frame extends JFrame {
         return mouse;
     }
 
+    public boolean isPredicted() {
+        return predicted;
+    }
+
+    public void setPredicted(boolean predicted) {
+        this.predicted = predicted;
+        buttonPanel.getPredictButton().setEnabled(!predicted);
+    }
+    
     public static void main(String[] args) {
         new Frame();
     }

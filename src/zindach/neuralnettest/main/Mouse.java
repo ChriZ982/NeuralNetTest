@@ -9,16 +9,35 @@ public class Mouse extends MouseAdapter {
 
     private static final int BRUSH_RADIUS = 30;
     private final Frame frame;
+    private Thread autoPredict;
 
     public Mouse(Frame frame) {
         this.frame = frame;
     }
 
+    private void startAutoPredict()
+    {
+        if(autoPredict!=null && !autoPredict.isInterrupted())
+        {
+            autoPredict.interrupt();
+        }
+        autoPredict = new Thread(()  -> {
+            try {
+                Thread.sleep(2000);
+                if(!frame.isPredicted())
+                    frame.getButtonPanel().predictButtonActionPerformed();
+            } catch (InterruptedException ex) {}
+        });
+        autoPredict.start();
+    }
     private void draw(MouseEvent me) {
+        if(frame.isPredicted())
+            frame.getButtonPanel().resetButtonActionPerformed();
         Graphics2D g = frame.getGraphics2D();
         g.setColor(Color.BLACK);
         g.fillOval(me.getX() - BRUSH_RADIUS, me.getY() - BRUSH_RADIUS, 2 * BRUSH_RADIUS, 2 * BRUSH_RADIUS);
         frame.repaint();
+        startAutoPredict();
     }
 
     @Override
