@@ -97,11 +97,12 @@ public class ButtonPanel extends JPanel {
         frame.setNN(NetworkIO.loadNetwork("data/network.dat"));
     }
 
-    private void resetButtonActionPerformed() {
+    public void resetButtonActionPerformed() {
         Graphics2D g = frame.getGraphics2D();
         g.setBackground(Color.WHITE);
         g.clearRect(0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE);
         setLabels(new double[10]);
+        frame.setPredicted(false);
         frame.repaint();
     }
 
@@ -292,6 +293,7 @@ public class ButtonPanel extends JPanel {
                     }
                 }
                 drawImageFromVector(new Vector(vec));
+                frame.setPredicted(true);
             } catch (InterruptedException ex) {
             }
         });

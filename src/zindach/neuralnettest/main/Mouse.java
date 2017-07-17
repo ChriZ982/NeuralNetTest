@@ -23,11 +23,15 @@ public class Mouse extends MouseAdapter {
 
     @Override
     public void mouseClicked(MouseEvent me) {
+        if(frame.isPredicted())
+            frame.resetPanels();
         draw(me);
     }
 
     @Override
     public void mouseDragged(MouseEvent me) {
+        if(frame.isPredicted())
+            frame.resetPanels();
         draw(me);
     }
 }
