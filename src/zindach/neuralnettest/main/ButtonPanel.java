@@ -22,7 +22,6 @@ public class ButtonPanel extends JPanel {
         return predictButton;
     }
 
-    
     public ButtonPanel(Frame frame) {
         super(new GridLayout(12, 3));
         this.frame = frame;
@@ -40,7 +39,7 @@ public class ButtonPanel extends JPanel {
         JButton loadButton = new JButton("Load");
         JButton testButton = new JButton("Test");
         predictButton = new JButton("Predict");
-                
+
         resetButton.addActionListener((ActionEvent ae) -> {
             resetButtonActionPerformed();
         });
@@ -67,7 +66,11 @@ public class ButtonPanel extends JPanel {
         add(testButton);
         add(predictButton);
 
+        Graphics2D g = frame.getGraphics2D();
+        g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, Frame.DRAW_SIZE, Frame.DRAW_SIZE);
         setLabels(new double[10]);
+        frame.repaint();
     }
 
     private void trainButtonActionPerformed() {
@@ -246,8 +249,9 @@ public class ButtonPanel extends JPanel {
     }
 
     public void predictButtonActionPerformed() {
-        if(frame.isPredicted())
+        if (frame.isPredicted()) {
             return;
+        }
         Thread t1 = new Thread(() -> {
             try {
                 int nCut = getWhitespaceInImage(frame.getImage(), 0, 1, true);
