@@ -73,6 +73,7 @@ public class ButtonPanel extends JPanel {
     }
 
     private void testButtonActionPerformed() {
+        frame.setPredicted(true);
         Random rand = new Random();
         Vector[] data = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
         new Thread(() -> {
@@ -239,7 +240,7 @@ public class ButtonPanel extends JPanel {
         }
     }
 
-    private void predictButtonActionPerformed() {
+    public void predictButtonActionPerformed() {
         Thread t1 = new Thread(() -> {
             try {
                 int nCut = getWhitespaceInImage(frame.getImage(), 0, 1, true);

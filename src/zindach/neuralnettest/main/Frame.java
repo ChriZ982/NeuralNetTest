@@ -73,11 +73,6 @@ public class Frame extends JFrame {
         return mouse;
     }
 
-    public void resetPanels()
-    {
-        buttonPanel.resetButtonActionPerformed();
-    }
-
     public boolean isPredicted() {
         return predicted;
     }
