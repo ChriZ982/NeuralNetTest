@@ -79,6 +79,7 @@ public class Frame extends JFrame {
 
     public void setPredicted(boolean predicted) {
         this.predicted = predicted;
+        buttonPanel.getPredictButton().setEnabled(!predicted);
     }
     
     public static void main(String[] args) {

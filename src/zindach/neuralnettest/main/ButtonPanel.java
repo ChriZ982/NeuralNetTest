@@ -16,7 +16,13 @@ public class ButtonPanel extends JPanel {
 
     private final JLabel[] labels;
     private final Frame frame;
+    private JButton predictButton;
 
+    public JButton getPredictButton() {
+        return predictButton;
+    }
+
+    
     public ButtonPanel(Frame frame) {
         super(new GridLayout(12, 3));
         this.frame = frame;
@@ -33,8 +39,8 @@ public class ButtonPanel extends JPanel {
         JButton saveButton = new JButton("Save");
         JButton loadButton = new JButton("Load");
         JButton testButton = new JButton("Test");
-        JButton predictButton = new JButton("Predict");
-
+        predictButton = new JButton("Predict");
+                
         resetButton.addActionListener((ActionEvent ae) -> {
             resetButtonActionPerformed();
         });
@@ -61,7 +67,7 @@ public class ButtonPanel extends JPanel {
         add(testButton);
         add(predictButton);
 
-        resetButtonActionPerformed();
+        setLabels(new double[10]);
     }
 
     private void trainButtonActionPerformed() {
@@ -73,7 +79,6 @@ public class ButtonPanel extends JPanel {
     }
 
     private void testButtonActionPerformed() {
-        frame.setPredicted(true);
         Random rand = new Random();
         Vector[] data = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
         new Thread(() -> {
@@ -87,6 +92,7 @@ public class ButtonPanel extends JPanel {
 
             }
             System.out.println("finished");
+            frame.setPredicted(true);
         }).start();
     }
 
@@ -241,6 +247,8 @@ public class ButtonPanel extends JPanel {
     }
 
     public void predictButtonActionPerformed() {
+        if(frame.isPredicted())
+            return;
         Thread t1 = new Thread(() -> {
             try {
                 int nCut = getWhitespaceInImage(frame.getImage(), 0, 1, true);
@@ -273,13 +281,13 @@ public class ButtonPanel extends JPanel {
                     frame.getGraphics2D().drawImage(cutImage, offset + space, offset, Frame.DRAW_SIZE - offset - space, Frame.DRAW_SIZE - offset, 0, 0, width, height, this);
                 }
                 frame.repaint();
-                Thread.sleep(800);
+                Thread.sleep(400);
 
                 Vector cop = centerOfMassOfPixels(frame.getImage());
 
                 moveTowardsPoint(frame.getImage(), (int) cop.value(0), (int) cop.value(1), Frame.DRAW_SIZE / 2, Frame.DRAW_SIZE / 2);
                 frame.repaint();
-                Thread.sleep(800);
+                Thread.sleep(400);
 
                 double[] vec = new double[784];
                 for (int i = 0; i < 28; i++) {
