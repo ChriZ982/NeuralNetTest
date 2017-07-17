@@ -4,9 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import zindach.neuralnetlib.functions.CrossEntropyCostFunction;
-import zindach.neuralnetlib.functions.L1Regularization;
-import zindach.neuralnetlib.functions.SigmoidFunction;
 import zindach.neuralnetlib.net.NeuralNetwork;
 
 public class Frame extends JFrame {
@@ -23,7 +20,7 @@ public class Frame extends JFrame {
     public Frame() {
         super("Neural Network Test");
 
-        nn = new NeuralNetwork(new SigmoidFunction(), new CrossEntropyCostFunction(), new L1Regularization(), 784, 30, 10);
+        nn = new NeuralNetwork(784, 30, 10);
         image = new BufferedImage(DRAW_SIZE, DRAW_SIZE, BufferedImage.TYPE_INT_ARGB_PRE);
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));

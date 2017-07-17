@@ -83,7 +83,6 @@ public class ButtonPanel extends JPanel {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                 }
-
             }
             System.out.println("finished");
         }).start();
