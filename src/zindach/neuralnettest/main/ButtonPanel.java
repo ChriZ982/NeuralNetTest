@@ -9,13 +9,18 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import zindach.mathlib.algebra.Matrix;
 import zindach.mathlib.algebra.Vector;
 import zindach.neuralnetlib.io.NetworkIO;
+import zindach.neuralnetlib.options.cost.CrossEntropyCostFunction;
+import zindach.neuralnetlib.options.regularization.L2Regularization;
+import zindach.neuralnetlib.trainer.StochasticGradientDescentTrainer;
 
 public class ButtonPanel extends JPanel {
 
     private final JLabel[] labels;
     private final Frame frame;
+    private StochasticGradientDescentTrainer sgdt;
     private JButton predictButton;
 
     public JButton getPredictButton() {
@@ -74,11 +79,14 @@ public class ButtonPanel extends JPanel {
     }
 
     private void trainButtonActionPerformed() {
-        frame.getNN().stochasticGradientDescent(MNISTLoader.importData("data/train-images-idx3-ubyte.gz"),
-                MNISTLoader.importData("data/train-labels-idx1-ubyte.gz"),
-                MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz"),
-                MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz"),
-                2, 0.5, 5.0, 10, true);
+        if (sgdt == null) {
+            sgdt = new StochasticGradientDescentTrainer(frame.getNet(), new CrossEntropyCostFunction(), new L2Regularization());
+            sgdt.setTrainingData(MNISTLoader.importData("data/train-images-idx3-ubyte.gz"),
+                    MNISTLoader.importData("data/train-labels-idx1-ubyte.gz"));
+            sgdt.setTestData(MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz"),
+                    MNISTLoader.importData("data/t10k-labels-idx1-ubyte.gz"));
+        }
+        sgdt.train(2, 0.5, 5.0, 10, true);
     }
 
     private void testButtonActionPerformed() {
@@ -99,11 +107,11 @@ public class ButtonPanel extends JPanel {
     }
 
     private void saveButtonActionPerformed() {
-        NetworkIO.saveNetwork("data/network.dat", frame.getNN());
+        NetworkIO.saveNetwork("data/network.dat", frame.getNet());
     }
 
     private void loadButtonActionPerformed() {
-        frame.setNN(NetworkIO.loadNetwork("data/network.dat"));
+        frame.setNet(NetworkIO.loadNetwork("data/network.dat"));
     }
 
     public void resetButtonActionPerformed() {
@@ -151,15 +159,16 @@ public class ButtonPanel extends JPanel {
     private void drawImageFromVector(Vector vector) {
         resetButtonActionPerformed();
         Graphics2D g = frame.getGraphics2D();
+        double[] va = vector.getArray();
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 28; j++) {
-                int grey = 255 - (int) (vector.value(i * 28 + j) * 255);
+                int grey = 255 - (int) (va[i * 28 + j] * 255);
                 g.setColor(new Color(grey, grey, grey, 255));
                 g.fillRect(j * 25, i * 25, 25, 25);
             }
         }
         frame.repaint();
-        setLabels(frame.getNN().calculate(vector).values());
+        setLabels(frame.getNet().feedforward(new Matrix(vector)).getCols()[0].getArray());
     }
 
     private int getWhitespaceInImage(BufferedImage image, int i1, int i2, boolean horizontal) {
@@ -286,9 +295,9 @@ public class ButtonPanel extends JPanel {
                 frame.repaint();
                 Thread.sleep(400);
 
-                Vector cop = centerOfMassOfPixels(frame.getImage());
+                double[] cop = centerOfMassOfPixels(frame.getImage()).getArray();
 
-                moveTowardsPoint(frame.getImage(), (int) cop.value(0), (int) cop.value(1), Frame.DRAW_SIZE / 2, Frame.DRAW_SIZE / 2);
+                moveTowardsPoint(frame.getImage(), (int) cop[0], (int) cop[1], Frame.DRAW_SIZE / 2, Frame.DRAW_SIZE / 2);
                 frame.repaint();
                 Thread.sleep(400);
 

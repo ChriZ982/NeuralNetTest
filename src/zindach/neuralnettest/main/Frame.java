@@ -12,7 +12,7 @@ public class Frame extends JFrame {
     public static final String FILE_ENDING = ".png";
 
     private BufferedImage image;
-    private NeuralNetwork nn;
+    private NeuralNetwork net;
     private final DrawPanel drawPanel;
     private final ButtonPanel buttonPanel;
     private final Mouse mouse;
@@ -21,7 +21,7 @@ public class Frame extends JFrame {
     public Frame() {
         super("Neural Network Test");
 
-        nn = new NeuralNetwork(784, 30, 10);
+        net = new NeuralNetwork(784, 30, 10);
         image = new BufferedImage(DRAW_SIZE, DRAW_SIZE, BufferedImage.TYPE_INT_ARGB_PRE);
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
@@ -58,12 +58,12 @@ public class Frame extends JFrame {
         return buttonPanel;
     }
 
-    public void setNN(NeuralNetwork nn) {
-        this.nn = nn;
+    public void setNet(NeuralNetwork nn) {
+        this.net = nn;
     }
 
-    public NeuralNetwork getNN() {
-        return nn;
+    public NeuralNetwork getNet() {
+        return net;
     }
 
     public Mouse getMouse() {
