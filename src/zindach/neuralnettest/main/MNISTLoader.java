@@ -10,8 +10,20 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import zindach.mathlib.algebra.Vector;
 
+/**
+ * Loads MNIST data sets. Loading works according to specified standards at
+ * http://yann.lecun.com/exdb/mnist/.
+ *
+ * @author ChriZ98
+ */
 public class MNISTLoader {
 
+    /**
+     * Tries to read MNIST data from some file.
+     *
+     * @param fileName filename e.g. "train-images-idx3-ubyte.gz"
+     * @return imported data
+     */
     public static Vector[] importData(String fileName) {
         try {
             System.out.println("\n---Importing MNIST data---\nfile: " + fileName);
@@ -35,10 +47,23 @@ public class MNISTLoader {
         return new Vector[0];
     }
 
+    /**
+     * Converts 4 bytes to 32 bit integer.
+     *
+     * @param bytes byte array
+     * @return integer value representation
+     */
     private static int bytesToInt(byte[] bytes) {
         return ((bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF));
     }
 
+    /**
+     * Imports a label file form MNIST database
+     *
+     * @param gzip file stream
+     * @return imported labels
+     * @throws IOException error while reading file
+     */
     private static Vector[] importLabelFile(GZIPInputStream gzip) throws IOException {
         byte[] itemCountBytes = new byte[4];
         gzip.read(itemCountBytes);
@@ -54,6 +79,13 @@ public class MNISTLoader {
         return data;
     }
 
+    /**
+     * Imports an image file form MNIST database
+     *
+     * @param gzip file stream
+     * @return imported images
+     * @throws IOException error while reading file
+     */
     private static Vector[] importImageFile(GZIPInputStream gzip) throws IOException {
         byte[] infoBytes = new byte[4];
         gzip.read(infoBytes);

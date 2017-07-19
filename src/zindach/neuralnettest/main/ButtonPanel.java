@@ -21,17 +21,23 @@ import zindach.neuralnetlib.options.cost.CrossEntropyCostFunction;
 import zindach.neuralnetlib.options.regularization.L2Regularization;
 import zindach.neuralnetlib.trainer.StochasticGradientDescentTrainer;
 
+/**
+ * Panel holding all the buttons and interacting with neural network.
+ *
+ * @author ChriZ98
+ */
 public class ButtonPanel extends JPanel {
 
     private final JLabel[] labels;
     private final Frame frame;
+    private final JButton predictButton;
     private StochasticGradientDescentTrainer sgdt;
-    private JButton predictButton;
 
-    public JButton getPredictButton() {
-        return predictButton;
-    }
-
+    /**
+     * Initializes all buttons and labels.
+     *
+     * @param frame the parent frame
+     */
     public ButtonPanel(Frame frame) {
         super(new GridLayout(12, 3));
         this.frame = frame;
@@ -83,6 +89,9 @@ public class ButtonPanel extends JPanel {
         frame.repaint();
     }
 
+    /**
+     * Trains the network using MNIST data.
+     */
     private void trainButtonActionPerformed() {
         if (sgdt == null) {
             sgdt = new StochasticGradientDescentTrainer(frame.getNet(), new CrossEntropyCostFunction(), new L2Regularization());
@@ -94,6 +103,10 @@ public class ButtonPanel extends JPanel {
         sgdt.train(2, 0.5, 5.0, 10, true);
     }
 
+    /**
+     * Testing the network by iterating through some test images and diplaying
+     * calculated results.
+     */
     private void testButtonActionPerformed() {
         Random rand = new Random();
         Vector[] data = MNISTLoader.importData("data/t10k-images-idx3-ubyte.gz");
@@ -111,14 +124,23 @@ public class ButtonPanel extends JPanel {
         }).start();
     }
 
+    /**
+     * Saves the current neural network.
+     */
     private void saveButtonActionPerformed() {
         NetworkIO.saveNetwork("data/network.dat", frame.getNet());
     }
 
+    /**
+     * Loads some saved neural network.
+     */
     private void loadButtonActionPerformed() {
         frame.setNet(NetworkIO.loadNetwork("data/network.dat"));
     }
 
+    /**
+     * Resets the drawing panel and the labels.
+     */
     public void resetButtonActionPerformed() {
         Graphics2D g = frame.getGraphics2D();
         g.setBackground(Color.WHITE);
@@ -128,6 +150,11 @@ public class ButtonPanel extends JPanel {
         frame.repaint();
     }
 
+    /**
+     * Sets the probabilities as label content.
+     *
+     * @param output calculated probabilities
+     */
     public void setLabels(double[] output) {
         double sum = 0;
         double max = Double.NEGATIVE_INFINITY;
@@ -151,6 +178,14 @@ public class ButtonPanel extends JPanel {
         }
     }
 
+    /**
+     * Generates a double array representing the drawing. White pixels are
+     * encoded as 0. Black pixels are encoded as 1. Grey pixels are values
+     * inbetween.
+     *
+     * @param image drawing to represent
+     * @return double array with image data
+     */
     public double[] calcInput(BufferedImage image) {
         double[] input = new double[784];
         for (int i = 0; i < 28; i++) {
@@ -161,6 +196,12 @@ public class ButtonPanel extends JPanel {
         return input;
     }
 
+    /**
+     * Draws image from vector. The vector contains values between 0 and 1. That
+     * is convertet into different grey colors and then painted out.
+     *
+     * @param vector vector to be shown on panel
+     */
     private void drawImageFromVector(Vector vector) {
         resetButtonActionPerformed();
         Graphics2D g = frame.getGraphics2D();
@@ -176,6 +217,15 @@ public class ButtonPanel extends JPanel {
         setLabels(frame.getNet().feedforward(new Matrix(vector)).getCols()[0].getArray());
     }
 
+    /**
+     * Counts rows of white pixels in current drawing.
+     *
+     * @param image image to analyze
+     * @param i1 start index
+     * @param i2 direchtion. either -1 or 1
+     * @param horizontal count rows if true. count cols if false.
+     * @return number of rows with white pixels
+     */
     private int getWhitespaceInImage(BufferedImage image, int i1, int i2, boolean horizontal) {
         int cut = i1;
         for (int i = i1; i >= 0 && i < Frame.DRAW_SIZE; i += i2) {
@@ -198,6 +248,12 @@ public class ButtonPanel extends JPanel {
         return cut;
     }
 
+    /**
+     * Calculates the center of an image with the highest pixel density.
+     *
+     * @param image image to analyze
+     * @return vector containing y and x value of center
+     */
     private Vector centerOfMassOfPixels(BufferedImage image) {
         int iCount = 0, jCount = 0;
         int iVal = 0, jVal = 0;
@@ -214,6 +270,15 @@ public class ButtonPanel extends JPanel {
         return new Vector(iVal / iCount, jVal / jCount);
     }
 
+    /**
+     * Translates the image towards some point.
+     *
+     * @param image image to translate
+     * @param iC new center y
+     * @param jC new center x
+     * @param iM image center y
+     * @param jM image center x
+     */
     private void moveTowardsPoint(BufferedImage image, int iC, int jC, int iM, int jM) {
         int iDiff = iM - iC;
         int jDiff = jM - jC;
@@ -262,6 +327,9 @@ public class ButtonPanel extends JPanel {
         }
     }
 
+    /**
+     * Predicts the digit drawn by using the neural network to calculate.
+     */
     public void predictButtonActionPerformed() {
         if (frame.isPredicted()) {
             return;
@@ -324,5 +392,14 @@ public class ButtonPanel extends JPanel {
             }
         });
         t1.start();
+    }
+
+    /**
+     * Gets the predict button.
+     *
+     * @return predict button
+     */
+    public JButton getPredictButton() {
+        return predictButton;
     }
 }

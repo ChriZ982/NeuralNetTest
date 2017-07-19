@@ -11,10 +11,18 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import zindach.neuralnetlib.net.NeuralNetwork;
 
+/**
+ * Main and window class of the project. Responsible for initializing the gui
+ * and performing actions on the neural network.
+ *
+ * @author ChriZ98
+ */
 public class Frame extends JFrame {
 
+    /**
+     * Size of the panel used for drawing.
+     */
     public static final int DRAW_SIZE = 700;
-    public static final String FILE_ENDING = ".png";
 
     private BufferedImage image;
     private NeuralNetwork net;
@@ -23,6 +31,9 @@ public class Frame extends JFrame {
     private final Mouse mouse;
     private boolean predicted = false;
 
+    /**
+     * Initializes all needed components for digit recognition.
+     */
     public Frame() {
         super("Neural Network Test");
 
@@ -46,44 +57,94 @@ public class Frame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    /**
+     * Sets image.
+     *
+     * @param image image to set
+     */
     public void setImage(BufferedImage image) {
         this.image = image;
         repaint();
     }
 
+    /**
+     * Gets image.
+     *
+     * @return image
+     */
     public BufferedImage getImage() {
         return image;
     }
 
+    /**
+     * Gets 2D Graphics to draw on.
+     *
+     * @return graphics2d object
+     */
     public Graphics2D getGraphics2D() {
         return (Graphics2D) image.getGraphics();
     }
 
+    /**
+     * Gets button panel.
+     *
+     * @return button panel
+     */
     public ButtonPanel getButtonPanel() {
         return buttonPanel;
     }
 
+    /**
+     * Sets neural net.
+     *
+     * @param nn neural net to set
+     */
     public void setNet(NeuralNetwork nn) {
         this.net = nn;
     }
 
+    /**
+     * Gets neural net.
+     *
+     * @return neural net
+     */
     public NeuralNetwork getNet() {
         return net;
     }
 
+    /**
+     * Gets mouse.
+     *
+     * @return mouse
+     */
     public Mouse getMouse() {
         return mouse;
     }
 
+    /**
+     * Gets prediction status.
+     *
+     * @return prediction status
+     */
     public boolean isPredicted() {
         return predicted;
     }
 
+    /**
+     * Sets prediction status.
+     *
+     * @param predicted prediction status
+     */
     public void setPredicted(boolean predicted) {
         this.predicted = predicted;
         buttonPanel.getPredictButton().setEnabled(!predicted);
     }
 
+    /**
+     * Main method. Creates new Frame.
+     *
+     * @param args arguments passed
+     */
     public static void main(String[] args) {
         new Frame();
     }

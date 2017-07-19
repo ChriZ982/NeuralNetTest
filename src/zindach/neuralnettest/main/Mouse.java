@@ -10,16 +10,29 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Handles mouse interaction with drawing panel.
+ *
+ * @author ChriZ98
+ */
 public class Mouse extends MouseAdapter {
 
     private static final int BRUSH_RADIUS = 30;
     private final Frame frame;
     private Thread autoPredict;
 
+    /**
+     * Initializes mouse.
+     *
+     * @param frame parent frame
+     */
     public Mouse(Frame frame) {
         this.frame = frame;
     }
 
+    /**
+     * Starts a two second timer waiting to predict the drawing.
+     */
     private void startAutoPredict() {
         if (autoPredict != null && !autoPredict.isInterrupted()) {
             autoPredict.interrupt();
@@ -36,6 +49,12 @@ public class Mouse extends MouseAdapter {
         autoPredict.start();
     }
 
+    /**
+     * Paints on the panel and predicts after two seconds. If predicted before
+     * the image is first cleared.
+     *
+     * @param me mouse event
+     */
     private void draw(MouseEvent me) {
         if (frame.isPredicted()) {
             frame.getButtonPanel().resetButtonActionPerformed();
@@ -47,11 +66,21 @@ public class Mouse extends MouseAdapter {
         startAutoPredict();
     }
 
+    /**
+     * Paints on the panel.
+     *
+     * @param me mouse event
+     */
     @Override
     public void mouseClicked(MouseEvent me) {
         draw(me);
     }
 
+    /**
+     * Paints on the panel.
+     *
+     * @param me mouse event
+     */
     @Override
     public void mouseDragged(MouseEvent me) {
         draw(me);
