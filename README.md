@@ -23,7 +23,9 @@ The following list contains links to great articles and other good stuff:
 
 ### Version History ###
 
-**Version 1.0 - ...**
+**[Version 1.0 - Neural Net](https://github.com/ChriZ982/NeuralNetTest/releases/tag/v1.0)**
+
+* First version with working handwritten digit recognition.
 
 ### License ###
 
