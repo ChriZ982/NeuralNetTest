@@ -2,7 +2,7 @@
 
 This is my test project for the NeuralNetLib.
 
-Current line count: ~1000 lines
+Current line count: ~600 lines
 
 ### What is this repository for? ###
 
