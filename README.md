@@ -2,8 +2,6 @@
 
 This is my test project for the NeuralNetLib.
 
-Current line count: ~600 lines
-
 ### What is this repository for? ###
 
 The task is to recognize handwritten digits. 
@@ -23,6 +21,10 @@ The following list contains links to great articles and other good stuff:
 * [Neural networks and deep learning by Michael Nielsen](http://neuralnetworksanddeeplearning.com/index.html)
 * [The MNIST Database by Yann LeCun, Corinna Cortes, Christopher J.C. Burges](http://yann.lecun.com/exdb/mnist/)
 
+### Version History ###
+
+**Version 1.0 - ...**
+
 ### License ###
 
 NeuralNetTest by ChriZ98 is licensed under a
@@ -30,7 +32,3 @@ NeuralNetTest by ChriZ98 is licensed under a
 ![License Image](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)
 
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-### Version History ###
-
-**[Version 1.0 - Neural Net](https://github.com/ChriZ982/NeuralNetTest/releases/tag/v1.0-NeuralNet)**
