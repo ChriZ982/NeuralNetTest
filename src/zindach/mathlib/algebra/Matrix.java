@@ -47,7 +47,7 @@ public class Matrix {
     public Matrix(Vector... cols) {
         this(cols[0].getN(), cols.length);
         for (int j = 0; j < m; j++) {
-            double[] b = cols[j].getArray();
+            double[] b = cols[j].getAllRef();
             for (int i = 0; i < n; i++) {
                 A[i][j] = b[i];
             }
@@ -78,7 +78,7 @@ public class Matrix {
      */
     public Matrix addVec(Vector b) {
         Matrix C = new Matrix(n, m);
-        double[] ba = b.getArray();
+        double[] ba = b.getAllRef();
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 C.A[i][j] = A[i][j] + ba[i];
@@ -94,6 +94,7 @@ public class Matrix {
      * @return resulting matrix
      */
     public Matrix addMat(Matrix B) {
+        checkEqualDimensions(B);
         Matrix C = new Matrix(n, m);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
@@ -110,6 +111,7 @@ public class Matrix {
      * @return resulting matrix
      */
     public Matrix subMat(Matrix B) {
+        checkEqualDimensions(B);
         Matrix C = new Matrix(n, m);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
@@ -126,6 +128,7 @@ public class Matrix {
      * @return resulting matrix
      */
     public Matrix mulMat(Matrix B) {
+        checkMulDimensions(B);
         Matrix C = new Matrix(n, B.m);
         for (int i = 0; i < n; i++) {
             for (int k = 0; k < B.n; k++) {
@@ -145,6 +148,7 @@ public class Matrix {
      * @return resulting matrix
      */
     public Matrix hadamardMat(Matrix B) {
+        checkEqualDimensions(B);
         Matrix C = new Matrix(n, m);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
@@ -161,8 +165,9 @@ public class Matrix {
      * @return resulting vector
      */
     public Vector mulVec(Vector b) {
+        checkVectorDimensions(b);
         double[] c = new double[n];
-        double[] ba = b.getArray();
+        double[] ba = b.getAllRef();
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 c[i] += A[i][j] * ba[j];
@@ -220,6 +225,39 @@ public class Matrix {
     }
 
     /**
+     * Throws an exception if dimension of other matrix is not valid.
+     *
+     * @param b other matrix
+     */
+    private void checkEqualDimensions(Matrix B) {
+        if (n != B.n || m != B.m) {
+            throw new RuntimeException("Dimensions of Matrices not matching: " + n + " and " + B.n + ", " + m + " and " + B.m);
+        }
+    }
+
+    /**
+     * Throws an exception if dimension of other vector is not valid.
+     *
+     * @param b other vector
+     */
+    private void checkVectorDimensions(Vector b) {
+        if (m != b.getN()) {
+            throw new RuntimeException("Dimensions of Matrix and Vector not matching: " + m + " and " + b.getN());
+        }
+    }
+
+    /**
+     * Throws an exception if dimension of other matrix is not valid.
+     *
+     * @param b other matrix
+     */
+    private void checkMulDimensions(Matrix B) {
+        if (m != B.n) {
+            throw new RuntimeException("Dimensions of Matrices not matching: " + n + " and " + B.m + ", " + m + " and " + B.n);
+        }
+    }
+
+    /**
      * Gets row count.
      *
      * @return row count
@@ -239,12 +277,38 @@ public class Matrix {
     }
 
     /**
+     * Gets values at specified position.
+     *
+     * @param i row
+     * @param j column
+     * @return value at position
+     */
+    public double get(int i, int j) {
+        return A[i][j];
+    }
+
+    /**
      * Gets all values as array.
      *
      * @return all values as array
      */
-    public double[][] getArray() {
+    public double[][] getAllRef() {
         return A;
+    }
+
+    /**
+     * Gets all values copied into an array.
+     *
+     * @return copied values as array
+     */
+    public double[][] getAllCopy() {
+        double[][] C = new double[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                C[i][j] = A[i][j];
+            }
+        }
+        return C;
     }
 
     /**
@@ -259,6 +323,9 @@ public class Matrix {
             return false;
         }
         Matrix B = ((Matrix) o);
+        if (n != B.n || m != B.m) {
+            return false;
+        }
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 if (A[i][j] != B.A[i][j]) {

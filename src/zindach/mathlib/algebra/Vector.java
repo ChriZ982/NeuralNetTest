@@ -44,6 +44,7 @@ public class Vector {
      * @return resulting vector
      */
     public Vector addVec(Vector b) {
+        checkEqualDimensions(b);
         Vector c = new Vector(n);
         for (int i = 0; i < n; i++) {
             c.a[i] = a[i] + b.a[i];
@@ -58,6 +59,7 @@ public class Vector {
      * @return resulting vector
      */
     public Vector subVec(Vector b) {
+        checkEqualDimensions(b);
         Vector c = new Vector(n);
         for (int i = 0; i < n; i++) {
             c.a[i] = a[i] - b.a[i];
@@ -73,6 +75,7 @@ public class Vector {
      * @return resulting vector
      */
     public Vector hadamardVec(Vector b) {
+        checkEqualDimensions(b);
         Vector c = new Vector(n);
         for (int i = 0; i < n; i++) {
             c.a[i] = a[i] * b.a[i];
@@ -101,11 +104,23 @@ public class Vector {
      * @return resulting scalar
      */
     public double dotVec(Vector b) {
+        checkEqualDimensions(b);
         double s = 0;
         for (int i = 0; i < n; i++) {
             s += a[i] * b.a[i];
         }
         return s;
+    }
+
+    /**
+     * Throws an exception if dimension of other vector is not valid.
+     *
+     * @param b other vector
+     */
+    private void checkEqualDimensions(Vector b) {
+        if (n != b.n) {
+            throw new RuntimeException("Dimensions of Vectors not matching: " + n + " and " + b.n);
+        }
     }
 
     /**
@@ -127,12 +142,33 @@ public class Vector {
     }
 
     /**
+     * Gets value at index.
+     *
+     * @param i value index
+     * @return value
+     */
+    public double get(int i) {
+        return a[i];
+    }
+
+    /**
      * Gets all values as an array
      *
      * @return values as array
      */
-    public double[] getArray() {
+    public double[] getAllRef() {
         return a;
+    }
+
+    /**
+     * Gets all values copied into another array.
+     *
+     * @return copy of all values
+     */
+    public double[] getAllCopy() {
+        double[] c = new double[n];
+        System.arraycopy(a, 0, c, 0, n);
+        return c;
     }
 
     /**
@@ -147,6 +183,9 @@ public class Vector {
             return false;
         }
         Vector b = (Vector) o;
+        if (n != b.n) {
+            return false;
+        }
         for (int i = 0; i < n; i++) {
             if (a[i] != b.a[i]) {
                 return false;

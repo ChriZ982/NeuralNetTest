@@ -32,7 +32,7 @@ public class L1Regularization extends Regularization {
     public Matrix calculate(Matrix weights, double learningRate, double lambda, int n) {
         double factor = (learningRate * lambda) / n;
         double[][] C = new double[weights.getN()][weights.getM()];
-        double[][] A = weights.getArray();
+        double[][] A = weights.getAllRef();
         for (int i = 0; i < weights.getN(); i++) {
             for (int j = 0; j < weights.getM(); j++) {
                 if (A[i][j] < 0) {

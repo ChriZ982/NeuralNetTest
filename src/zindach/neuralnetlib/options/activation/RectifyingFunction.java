@@ -6,12 +6,11 @@
 package zindach.neuralnetlib.options.activation;
 
 /**
- * Represents the sigmoid activation function. Maps every x to a y between 0 and
- * 1.
+ * Represents the rectified linear activation function.
  *
  * @author ChriZ98
  */
-public class SigmoidFunction extends ActivationFunction {
+public class RectifyingFunction extends ActivationFunction {
 
     /**
      * Calculates activation for single value.
@@ -21,7 +20,7 @@ public class SigmoidFunction extends ActivationFunction {
      */
     @Override
     protected double calculate(double x) {
-        return 1 / (1 + Math.exp(-x));
+        return Math.max(0, x);
     }
 
     /**
@@ -32,7 +31,6 @@ public class SigmoidFunction extends ActivationFunction {
      */
     @Override
     protected double calculateDeriv(double x) {
-        double exp = Math.exp(x);
-        return exp / (x * (x + 2) + 1);
+        return x > 0.0 ? 1.0 : 0.0;
     }
 }

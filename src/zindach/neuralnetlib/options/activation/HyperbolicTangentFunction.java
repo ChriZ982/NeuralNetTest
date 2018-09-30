@@ -6,12 +6,12 @@
 package zindach.neuralnetlib.options.activation;
 
 /**
- * Represents the sigmoid activation function. Maps every x to a y between 0 and
- * 1.
+ * Represents the hyperbolic tangent activation function. Maps every x to a y
+ * between -1 and 1.
  *
  * @author ChriZ98
  */
-public class SigmoidFunction extends ActivationFunction {
+public class HyperbolicTangentFunction extends ActivationFunction {
 
     /**
      * Calculates activation for single value.
@@ -21,7 +21,7 @@ public class SigmoidFunction extends ActivationFunction {
      */
     @Override
     protected double calculate(double x) {
-        return 1 / (1 + Math.exp(-x));
+        return Math.tanh(x);
     }
 
     /**
@@ -32,7 +32,6 @@ public class SigmoidFunction extends ActivationFunction {
      */
     @Override
     protected double calculateDeriv(double x) {
-        double exp = Math.exp(x);
-        return exp / (x * (x + 2) + 1);
+        return 2.0 / (Math.cosh(2.0 * x) + 1.0);
     }
 }

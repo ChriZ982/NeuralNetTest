@@ -29,9 +29,9 @@ public class CrossEntropyCostFunction extends CostFunction {
     @Override
     public double calculateTotal(NeuralNetwork net, Vector[] dataIn, Vector[] dataOut) {
         double sum = 0;
-        double[][] MA = net.feedforward(new Matrix(dataIn)).getArray();
+        double[][] MA = net.feedforward(new Matrix(dataIn)).getAllRef();
         for (int i = 0; i < dataIn.length; i++) {
-            double[] y = dataOut[i].getArray();
+            double[] y = dataOut[i].getAllRef();
             for (int j = 0; j < y.length; j++) {
                 sum += y[j] * Math.log(MA[j][i]) + (1.0 - y[j]) * Math.log(1.0 - MA[j][i]);
             }
