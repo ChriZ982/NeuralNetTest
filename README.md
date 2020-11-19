@@ -1,5 +1,7 @@
 # NeuralNetTest #
 
+Main repository at: https://gitlab.com/ChriZ98/NeuralNetTest
+
 This is my test project for the NeuralNetLib.
 
 ### What is this repository for? ###
